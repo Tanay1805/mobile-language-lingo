@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class MyScheduleWidget extends StatelessWidget {
+  const MyScheduleWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "My schedule",
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              Row(
+                children: [
+                  _buildNavIcon(CupertinoIcons.chevron_left),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Today",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildNavIcon(CupertinoIcons.chevron_right),
+                ],
+              )
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Scrollable List of classes
+          SizedBox(
+            height: 180,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              children: [
+                _buildScheduleCard(
+                  time: "10:30 — 12:00",
+                  title: "Technical English for Beginners",
+                  level: "Beginner",
+                  mentorName: "Kristin Watson",
+                  isActive: false,
+                ),
+                const SizedBox(width: 16),
+                _buildScheduleCard(
+                  time: "13:00 — 14:00",
+                  title: "English punctuation made easy",
+                  level: "Advanced",
+                  mentorName: "Cody Fisher",
+                  isActive: true,
+                ),
+                const SizedBox(width: 16),
+                _buildScheduleCard(
+                  time: "16:00 — 17:00",
+                  title: "Technical Spanish for Beginners",
+                  level: "Beginner",
+                  mentorName: "Jacob Jones",
+                  isActive: false,
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Icon(icon, size: 18, color: Colors.black87),
+    );
+  }
+
+  Widget _buildScheduleCard({
+    required String time,
+    required String title,
+    required String level,
+    required String mentorName,
+    required bool isActive,
+  }) {
+    final bgColor = isActive ? const Color(0xFF6B4FE8) : const Color(0xFFF9F9FB);
+    final textColor = isActive ? Colors.white : Colors.black87;
+    final subtitleColor = isActive ? Colors.white70 : Colors.grey.shade600;
+
+    return Container(
+      width: 240,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF6B4FE8).withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                )
+              ]
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                time,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: subtitleColor,
+                ),
+              ),
+              if (isActive)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                     children: [
+                       Container(
+                         width: 6,
+                         height: 6,
+                         decoration: const BoxDecoration(
+                           color: Colors.white,
+                           shape: BoxShape.circle,
+                         ),
+                       ),
+                       const SizedBox(width: 4),
+                       Text(
+                         "Now",
+                         style: GoogleFonts.poppins(
+                           fontSize: 10,
+                           color: Colors.white,
+                           fontWeight: FontWeight.bold,
+                         ),
+                       ),
+                     ],
+                  )
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+              height: 1.3,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: isActive ? Colors.white.withOpacity(0.2) : Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              level,
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : Colors.blue,
+              ),
+            ),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.blueGrey,
+                child: Icon(CupertinoIcons.person_solid, color: Colors.white, size: 14),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    mentorName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                  Text(
+                    "Mentor",
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: subtitleColor,
+                    ),
+                  ),
+                ],
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}

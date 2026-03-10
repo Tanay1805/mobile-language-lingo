@@ -1,0 +1,42 @@
+name: language_learner_application
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  lottie: ^3.0.0
+  google_fonts: ^6.2.1
+  animate_do: ^3.0.0
+  smooth_page_indicator: ^1.0.1
+  cached_network_image: ^3.3.0
+  simple_animations: ^5.2.0
+  supabase_flutter: ^2.12.0
+  google_sign_in: ^7.2.0
+  http: ^1.6.0
+  fl_chart: ^1.1.1
+  flutter_tts: ^4.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - lib/assets/animations/loading.json
+    - lib/assets/animations/education.json
+
