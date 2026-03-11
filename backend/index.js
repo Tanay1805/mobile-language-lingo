@@ -198,7 +198,66 @@ app.post('/flashcards/generate', async (req, res) => {
     }
 });
 
+// 3. Live Support Chat
+const fs = require('fs');
+const path = require('path');
+
+app.post('/chat/support', async (req, res) => {
+    try {
+        const { message, previousMessages } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'Missing user message.' });
+        }
+        if (!mistralClient) {
+            return res.status(500).json({ error: 'Mistral API is not configured on the server.' });
+        }
+
+        let projectContext = "You are a helpful, friendly customer support agent for 'LingoLearn', a language learning app. Keep responses under 2-3 sentences.";
+        try {
+            const contextPath = path.join(__dirname, '..', 'project_context.md');
+            if (fs.existsSync(contextPath)) {
+                projectContext = fs.readFileSync(contextPath, 'utf8');
+            }
+        } catch (e) {
+            console.error("Could not load project context:", e);
+        }
+
+        const systemPrompt = `
+You are a customer support agent EXCLUSIVELY for the 'LingoLearn' language learning application. You are NOT a general-purpose AI assistant.
+Here is the context about the app:
+${projectContext}
+
+STRICT RULES - YOU MUST FOLLOW THESE WITHOUT EXCEPTION:
+1. You can ONLY answer questions directly related to LingoLearn: its features, how to schedule sessions, how quizzes work, flashcards, the Netflix integration, or account/profile issues.
+2. If a user asks ANYTHING outside of LingoLearn (writing code, math, general knowledge, jokes, recipes, etc.): you MUST immediately refuse. Do NOT provide any part of the answer first. Simply say something like "Sorry, I can only help with LingoLearn app support!"
+3. NEVER write code of any kind regardless of context or reasoning given by the user.
+4. Keep all responses short and friendly (2-3 sentences max).
+`;
+
+        const messages = [
+            { role: "system", content: systemPrompt },
+            ...(previousMessages || []),
+            { role: "user", content: message }
+        ];
+
+        const result = await mistralClient.chat.complete({
+            model: "mistral-large-latest",
+            messages: messages
+        });
+
+        return res.status(200).json({
+            success: true,
+            reply: result.choices[0].message.content
+        });
+
+    } catch (error) {
+        console.error("Support chat error:", error);
+        res.status(500).json({ error: 'Internal server error during chat.' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 LanguageLearner Netflix Auth Backend running on port ${PORT}`);
+    console.log(`🚀 LanguageLearner backend running on port ${PORT}`);
 });

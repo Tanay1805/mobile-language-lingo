@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'quiz_page.dart';
 
 class SeriesSelectionPage extends StatelessWidget {
@@ -102,13 +103,30 @@ class SeriesSelectionPage extends StatelessWidget {
                             offset: const Offset(0, 5),
                           ),
                         ],
-                        image: DecorationImage(
-                          image: NetworkImage(show["img"]!),
-                          fit: BoxFit.cover,
-                        ),
                       ),
                       child: Stack(
+                        fit: StackFit.expand,
                         children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: CachedNetworkImage(
+                              imageUrl: show["img"]!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey.shade800,
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white54,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey.shade800,
+                                child: const Icon(Icons.error, color: Colors.red),
+                              ),
+                            ),
+                          ),
                           // Elegant Gradient Overlay for Text Readability
                           Container(
                             decoration: BoxDecoration(

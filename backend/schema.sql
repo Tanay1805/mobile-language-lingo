@@ -133,3 +133,39 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   ON storage.objects FOR SELECT TO public
   USING (bucket_id = 'avatars');
 */
+
+-- ==========================================
+-- Calendly Integration / Instructor Scheduling
+-- ==========================================
+
+-- 8. Instructor Sessions Table (Master list of classes available to book)
+CREATE TABLE public.instructor_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  language TEXT NOT NULL,
+  level TEXT NOT NULL,
+  title TEXT NOT NULL,
+  mentor_name TEXT NOT NULL,
+  calendly_url TEXT NOT NULL,
+  time_slot TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.instructor_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view instructor sessions" ON public.instructor_sessions FOR SELECT USING (true);
+
+
+-- 9. User Sessions Table (Tracking which user booked which specific class)
+CREATE TABLE public.user_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  session_id UUID REFERENCES public.instructor_sessions(id) ON DELETE CASCADE,
+  status TEXT DEFAULT 'upcoming',
+  booked_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, session_id) -- A user can only book a specific class type once for simplicity right now
+);
+
+ALTER TABLE public.user_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view their own booked sessions" ON public.user_sessions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can book their own sessions" ON public.user_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own booked sessions" ON public.user_sessions FOR UPDATE USING (auth.uid() = user_id);

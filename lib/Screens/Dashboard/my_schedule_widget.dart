@@ -1,9 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class MyScheduleWidget extends StatelessWidget {
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class MyScheduleWidget extends StatefulWidget {
   const MyScheduleWidget({super.key});
+
+  @override
+  State<MyScheduleWidget> createState() => _MyScheduleWidgetState();
+}
+
+class _MyScheduleWidgetState extends State<MyScheduleWidget> {
+  List<Map<String, dynamic>> _instructorSessions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSessions();
+  }
+
+  Future<void> _fetchSessions() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final response = await Supabase.instance.client
+          .from('user_sessions')
+          .select('*, instructor_sessions(*)')
+          .eq('user_id', user.id)
+          .order('booked_at', ascending: false);
+      
+      if (mounted) {
+        setState(() {
+          _instructorSessions = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching instructor sessions: \$e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +66,7 @@ class MyScheduleWidget extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,38 +101,50 @@ class MyScheduleWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           // Scrollable List of classes
-          SizedBox(
-            height: 180,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              children: [
-                _buildScheduleCard(
-                  time: "10:30 — 12:00",
-                  title: "Technical English for Beginners",
-                  level: "Beginner",
-                  mentorName: "Kristin Watson",
-                  isActive: false,
-                ),
-                const SizedBox(width: 16),
-                _buildScheduleCard(
-                  time: "13:00 — 14:00",
-                  title: "English punctuation made easy",
-                  level: "Advanced",
-                  mentorName: "Cody Fisher",
-                  isActive: true,
-                ),
-                const SizedBox(width: 16),
-                _buildScheduleCard(
-                  time: "16:00 — 17:00",
-                  title: "Technical Spanish for Beginners",
-                  level: "Beginner",
-                  mentorName: "Jacob Jones",
-                  isActive: false,
-                ),
-              ],
-            ),
-          )
+          _isLoading
+              ? const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : _instructorSessions.isEmpty
+                  ? Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "You haven't booked any sessions yet.",
+                              style: GoogleFonts.poppins(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              "Go to the Schedule tab to book a class!",
+                              style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFF6B4FE8)),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  : Expanded(
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        clipBehavior: Clip.none,
+                        itemCount: _instructorSessions.length,
+                        separatorBuilder: (context, index) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final userSession = _instructorSessions[index];
+                          final sessionDetails = userSession['instructor_sessions'];
+                          if (sessionDetails == null) return const SizedBox.shrink();
+
+                          return _buildScheduleCard(
+                            time: sessionDetails['time_slot'] ?? "Flexible",
+                            title: sessionDetails['title'] ?? sessionDetails['language'],
+                            level: sessionDetails['level'] ?? "All Levels",
+                            mentorName: sessionDetails['mentor_name'] ?? "Instructor",
+                            isActive: sessionDetails['is_active'] ?? false,
+                          );
+                        },
+                      ),
+                    )
         ],
       ),
     );
@@ -115,7 +174,7 @@ class MyScheduleWidget extends StatelessWidget {
 
     return Container(
       width: 240,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
@@ -173,19 +232,19 @@ class MyScheduleWidget extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
           Text(
             title,
             style: GoogleFonts.poppins(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: textColor,
-              height: 1.3,
+              height: 1.2,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -199,6 +258,29 @@ class MyScheduleWidget extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: isActive ? Colors.white : Colors.blue,
               ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: isActive ? Colors.white : const Color(0xFF6B4FE8),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: isActive ? const Color(0xFF6B4FE8) : Colors.white, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  "Confirmed",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isActive ? const Color(0xFF6B4FE8) : Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
           const Spacer(),

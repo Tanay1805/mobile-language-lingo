@@ -6,6 +6,8 @@ import 'activity_chart_widget.dart';
 import 'quick_learning_modules_widget.dart';
 import 'progress_statistics_widget.dart';
 import 'my_schedule_widget.dart';
+import 'schedule_tab_widget.dart';
+import 'support_tab_widget.dart';
 import 'current_course_widget.dart';
 import '../Learning/series_selection_page.dart';
 import '../Learning/netflix_transition_page.dart';
@@ -79,7 +81,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 if (_selectedNavIndex == 1) ...[
                   if (isDesktop) _buildDesktopLayout(),
                   if (isTablet) _buildTabletLayout(),
-                  if (!isDesktop && !isTablet) _buildMobileLayout(),
+                ] else if (_selectedNavIndex == 2) ...[
+                  const ScheduleTabWidget(),
+                ] else if (_selectedNavIndex == 4) ...[
+                  const SupportTabWidget(),
                 ] else ...[
                   _buildComingSoonTab(),
                 ],
@@ -131,7 +136,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 _buildNavItem("Content Courses", 0),
                 _buildNavItem("Dashboard", 1),
                 _buildNavItem("Schedule", 2),
-                _buildNavItem("Message", 3),
                 _buildNavItem("Support", 4),
               ],
             ),
