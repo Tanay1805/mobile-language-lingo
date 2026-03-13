@@ -167,9 +167,12 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _handleGoogleSignIn() async {
     setState(() { _isLoading = true; });
     try {
+import 'package:flutter/foundation.dart' show kIsWeb; // Add to imports if not there
+
+// ... inside _handleGoogleSignIn ...
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'io.supabase.languagelearner://login-callback',
+        redirectTo: kIsWeb ? null : 'io.supabase.languagelearner://login-callback',
       );
       // Supabase handles the deep link return natively on mobile
     } catch (e) {
