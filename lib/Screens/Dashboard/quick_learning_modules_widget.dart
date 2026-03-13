@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../Learning/series_selection_page.dart';
+import '../learning/series_selection_page.dart';
 
 class QuickLearningModulesWidget extends StatelessWidget {
   const QuickLearningModulesWidget({super.key});
