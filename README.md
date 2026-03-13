@@ -1,4 +1,4 @@
-# language_learner_application
+# mobile-language-lingo
 
 A new Flutter project.
 
