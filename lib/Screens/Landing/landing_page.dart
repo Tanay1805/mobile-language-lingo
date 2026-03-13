@@ -9,7 +9,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:lottie/lottie.dart';
 import 'package:simple_animations/simple_animations.dart';
 import 'package:image_picker/image_picker.dart';
-import '../dashboard/dashboard_page.dart';
+import '../Dashboard/dashboard_page.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});

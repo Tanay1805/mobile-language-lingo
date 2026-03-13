@@ -9,8 +9,8 @@ import 'my_schedule_widget.dart';
 import 'schedule_tab_widget.dart';
 import 'support_tab_widget.dart';
 import 'current_course_widget.dart';
-import '../learning/series_selection_page.dart';
-import '../learning/netflix_transition_page.dart';
+import '../Learning/series_selection_page.dart';
+import '../Learning/netflix_transition_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardPage extends StatefulWidget {
