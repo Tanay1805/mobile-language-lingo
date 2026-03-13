@@ -3,7 +3,7 @@
 # Downloads Flutter SDK, adds git safe ownership exceptions, and builds the app.
 
 echo "Setting up Flutter SDK..."
-curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz | tar xJ
+curl -sL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.29.0-stable.tar.xz | tar xJ
 
 echo "Adding git safe directory exceptions..."
 git config --global --add safe.directory /vercel/path0/flutter
