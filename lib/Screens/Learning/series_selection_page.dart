@@ -67,16 +67,25 @@ class SeriesSelectionPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.only(bottom: 24),
-                itemCount: netflixShows.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // Smaller cards via 3 columns
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.65, // Classic portrait movie poster ratio
-                ),
-                itemBuilder: (context, index) {
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  int crossAxisCount = 3;
+                  if (constraints.maxWidth < 600) {
+                    crossAxisCount = 2;
+                  } else if (constraints.maxWidth > 1000) {
+                    crossAxisCount = 4;
+                  }
+                  
+                  return GridView.builder(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    itemCount: netflixShows.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.65, // Classic portrait movie poster ratio
+                    ),
+                    itemBuilder: (context, index) {
                   final show = netflixShows[index];
 
                   return GestureDetector(
@@ -183,6 +192,8 @@ class SeriesSelectionPage extends StatelessWidget {
                     ),
                   );
                 },
+              );
+                }
               ),
             ),
           ],

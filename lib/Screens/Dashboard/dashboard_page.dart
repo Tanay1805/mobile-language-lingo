@@ -67,6 +67,30 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FB), // Light grey background from ref
+      bottomNavigationBar: (!isDesktop && !isTablet) 
+          ? BottomNavigationBar(
+              currentIndex: _selectedNavIndex == 4 ? 3 : _selectedNavIndex == 0 ? 0 : _selectedNavIndex,
+              selectedItemColor: const Color(0xFF6B4FE8),
+              unselectedItemColor: Colors.grey,
+              onTap: (index) {
+                if (index == 0) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NetflixTransitionPage()),
+                  );
+                } else {
+                  setState(() => _selectedNavIndex = index == 3 ? 4 : index);
+                }
+              },
+              type: BottomNavigationBarType.fixed,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.play_circle_fill), label: "Courses"),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.square_grid_2x2), label: "Dashboard"),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.calendar), label: "Schedule"),
+                BottomNavigationBarItem(icon: Icon(CupertinoIcons.question_circle), label: "Support"),
+              ],
+            )
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -83,6 +107,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 if (_selectedNavIndex == 1) ...[
                   if (isDesktop) _buildDesktopLayout(),
                   if (isTablet) _buildTabletLayout(),
+                  if (!isDesktop && !isTablet) _buildMobileLayout(),
                 ] else if (_selectedNavIndex == 2) ...[
                   const ScheduleTabWidget(),
                 ] else if (_selectedNavIndex == 4) ...[

@@ -231,14 +231,14 @@ class _LandingPageState extends State<LandingPage> {
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(flex: 5, child: _buildLeftPanel()),
+                            Expanded(flex: 5, child: _buildLeftPanel(context)),
                             Expanded(flex: 5, child: _buildRightPanel()),
                           ],
                         )
                       : Column(
                           children: [
-                            _buildLeftPanel(),
-                            SizedBox(height: 400, child: _buildRightPanel()),
+                            _buildLeftPanel(context),
+                            SizedBox(height: 300, child: _buildRightPanel()),
                           ],
                         ),
                   ),
@@ -281,10 +281,13 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildLeftPanel() {
+  Widget _buildLeftPanel(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 800;
+    
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 50 : 20, vertical: isDesktop ? 50 : 30),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
