@@ -24,27 +24,28 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
   
   // Game state
   String? _selectedSupport;
+  double _gameWidth = 1000.0; // Will be updated in build
 
   // Blocks (Support Options)
   final List<Map<String, dynamic>> _blocks = [
     {
       'label': 'Email Us',
       'icon': Icons.email,
-      'x': 250.0,
+      'xPercent': 0.15,
       'y': 120.0, // Height from ground
       'color': const Color(0xFF6B4FE8)
     },
     {
       'label': 'Live Chat',
       'icon': Icons.chat_bubble,
-      'x': 500.0,
+      'xPercent': 0.45,
       'y': 150.0,
       'color': const Color(0xFF26D390)
     },
     {
       'label': 'FAQ',
       'icon': Icons.help,
-      'x': 750.0,
+      'xPercent': 0.75,
       'y': 120.0,
       'color': const Color(0xFFFF9421)
     },
@@ -92,7 +93,7 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
   void _moveLeft() {
     if (_selectedSupport != null) return;
     setState(() {
-      _playerX -= 30.0;
+      _playerX -= _gameWidth * 0.05;
       if (_playerX < 0) _playerX = 0;
     });
   }
@@ -100,8 +101,8 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
   void _moveRight() {
     if (_selectedSupport != null) return;
     setState(() {
-      _playerX += 30.0;
-      if (_playerX > 1000) _playerX = 1000; 
+      _playerX += _gameWidth * 0.05;
+      if (_playerX > _gameWidth - 40) _playerX = _gameWidth - 40; 
     });
   }
 
@@ -131,8 +132,8 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
     final playerTop = _playerY + _playerSize; 
 
     for (var block in _blocks) {
-      final blockLeft = block['x'];
-      final blockRight = block['x'] + 80;
+      final blockLeft = _gameWidth * block['xPercent'];
+      final blockRight = blockLeft + 80;
       final blockBottom = block['y'];
       
       // If player peak hits bottom of block
@@ -151,58 +152,63 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width <= 750;
     return RawKeyboardListener(
       focusNode: _focusNode,
       onKey: _handleKeyEvent,
       autofocus: true,
-      child: Container(
-        height: 650, // Making it large ("full screen there")
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.lightBlue.shade50,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.blue.shade200, width: 2),
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            // Background Elements (Clouds)
-            Positioned(top: 50, left: 100, child: Icon(Icons.cloud, color: Colors.white, size: 80)),
-            Positioned(top: 100, left: 400, child: Icon(Icons.cloud, color: Colors.white, size: 100)),
-            Positioned(top: 30, right: 150, child: Icon(Icons.cloud, color: Colors.white, size: 60)),
-
-            // UI Text Overlay
-            Positioned(
-              top: 24,
-              left: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Support World 1-1",
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 20,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Use Arrow Keys (← → Space) or on-screen buttons to jump and hit a block!",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          _gameWidth = constraints.maxWidth;
+          return Container(
+            height: isMobile ? 500 : 650, // Smaller on mobile
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.lightBlue.shade50,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.blue.shade200, width: 2),
             ),
+            clipBehavior: Clip.hardEdge,
+            child: Stack(
+              children: [
+                // Background Elements (Clouds)
+                Positioned(top: 50, left: _gameWidth * 0.1, child: Icon(Icons.cloud, color: Colors.white, size: isMobile ? 50 : 80)),
+                Positioned(top: 100, left: _gameWidth * 0.4, child: Icon(Icons.cloud, color: Colors.white, size: isMobile ? 60 : 100)),
+                Positioned(top: 30, right: _gameWidth * 0.15, child: Icon(Icons.cloud, color: Colors.white, size: isMobile ? 40 : 60)),
+
+                // UI Text Overlay
+                Positioned(
+                  top: 24,
+                  left: 24,
+                  right: 24,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Support World 1-1",
+                        style: GoogleFonts.pressStart2p(
+                          fontSize: isMobile ? 14 : 20,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Use Arrow Keys (← → Space) or on-screen buttons to jump and hit a block!",
+                        style: GoogleFonts.poppins(
+                          fontSize: isMobile ? 12 : 14,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
             // Game Area (Offsets calculated from bottom)
             Positioned.fill(
               child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final groundHeight = 90.0;
+                builder: (context, gameConstraints) {
+                  final groundHeight = isMobile ? 60.0 : 90.0;
                   return Stack(
                     children: [
                       // Ground floor
@@ -218,11 +224,11 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
                           ),
                           child: Stack(
                             children: List.generate(
-                              20, 
+                              (_gameWidth / 40).ceil(), 
                               (index) => Positioned(
-                                left: index * 60.0,
-                                top: 20,
-                                child: Icon(Icons.grass, color: Colors.green.shade800, size: 24),
+                                left: index * 40.0,
+                                top: isMobile ? 10 : 20,
+                                child: Icon(Icons.grass, color: Colors.green.shade800, size: isMobile ? 18 : 24),
                               )
                             )
                           ),
@@ -232,7 +238,7 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
                       // Target Blocks
                       ..._blocks.map((block) {
                         return Positioned(
-                          left: block['x'],
+                          left: _gameWidth * block['xPercent'],
                           bottom: groundHeight + block['y'],
                           child: Container(
                             width: 80,
@@ -297,12 +303,12 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
                   children: [
                     Row(
                       children: [
-                        _buildControlButton(Icons.arrow_back, _moveLeft),
+                        _buildControlButton(Icons.arrow_back, _moveLeft, isMobile: isMobile),
                         const SizedBox(width: 16),
-                        _buildControlButton(Icons.arrow_forward, _moveRight),
+                        _buildControlButton(Icons.arrow_forward, _moveRight, isMobile: isMobile),
                       ],
                     ),
-                    _buildControlButton(Icons.arrow_upward, _jump, isAction: true),
+                    _buildControlButton(Icons.arrow_upward, _jump, isAction: true, isMobile: isMobile),
                   ],
                 ),
               ),
@@ -352,7 +358,7 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
                       
                       // Content Body
                       Expanded(
-                        child: _buildContentBody(_selectedSupport!),
+                        child: _buildContentBody(_selectedSupport!, isMobile),
                       )
                     ],
                   ),
@@ -360,11 +366,13 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
               ),
           ],
         ),
-      ),
-    );
+       ); // Closes return Container
+      }, // Closes builder: (context, constraints) {
+     ), // Closes LayoutBuilder
+    ); // Closes RawKeyboardListener
   }
 
-  Widget _buildContentBody(String type) {
+  Widget _buildContentBody(String type, bool isMobile) {
     if (type == 'Email Us') {
       return Center(
         child: Column(
@@ -397,13 +405,14 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
             Text(
               "We generally reply within 24 hours.",
               style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
       );
     } else if (type == 'FAQ') {
       return ListView(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(isMobile ? 16 : 32),
         children: [
           _buildFaqItem("How do I book a lesson?", "Go to the Schedule tab, find your target language session, and click \"Book Session\" to be taken to the mentor's Calendly page."),
           _buildFaqItem("How are flashcards generated?", "Whenever you get a quiz question wrong, our AI dynamically creates a custom flashcard with an explanation and mnemonic specific to what you missed."),
@@ -437,11 +446,11 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
     );
   }
 
-  Widget _buildControlButton(IconData icon, VoidCallback onPressed, {bool isAction = false}) {
+  Widget _buildControlButton(IconData icon, VoidCallback onPressed, {bool isAction = false, bool isMobile = false}) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isMobile ? 12 : 16),
         decoration: BoxDecoration(
           color: isAction ? Colors.redAccent : Colors.white.withValues(alpha: 0.8),
           shape: BoxShape.circle,
@@ -459,7 +468,7 @@ class _SupportTabWidgetState extends State<SupportTabWidget> with SingleTickerPr
         ),
         child: Icon(
           icon, 
-          size: 28, 
+          size: isMobile ? 24 : 28, 
           color: isAction ? Colors.white : Colors.black87
         ),
       ),
